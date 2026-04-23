@@ -49,7 +49,7 @@ export default function App() {
         gap: m ? 8 : 16,
       }}>
         <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: T.inkMuted }}>
-          <strong style={{ color: T.ink }}>Retraite Sereine</strong> · Guide pédagogique pour un investissement progressif à la BRVM
+          <strong style={{ color: T.ink }}>Omaad Retraite</strong> · Guide pédagogique pour un investissement progressif à la BRVM
         </div>
         <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: T.inkDim }}>
           Sources : BOC BRVM · SikaFinance · avril 2026

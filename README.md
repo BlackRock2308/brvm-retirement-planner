@@ -1,4 +1,4 @@
-# Retraite Sereine — Guide BRVM
+# Omaad Retraite — Guide BRVM
 
 Application web pédagogique pour simuler un complément de retraite via un investissement progressif (DCA) sur la BRVM (Bourse Régionale des Valeurs Mobilières).
 

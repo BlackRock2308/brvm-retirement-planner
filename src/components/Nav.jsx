@@ -45,7 +45,7 @@ export default function Nav({ tab, setTab }) {
               <div style={{
                 fontFamily: FONT_SANS, fontSize: 17, fontWeight: 700,
                 color: T.ink, letterSpacing: "-0.02em", lineHeight: 1,
-              }}>Retraite Sereine</div>
+              }}>Omaad Retraite</div>
               <div style={{
                 fontFamily: FONT_SANS, fontSize: 11, color: T.inkMuted,
                 marginTop: 3, fontWeight: 500,
