@@ -5,6 +5,7 @@ import {
 import { Coins, Clock, TrendingUp, Calculator } from "lucide-react";
 import { T, FONT_SANS, FONT_DISPLAY, FONT_MONO } from "../theme";
 import { fmtFCFA, fmtFCFAfull, projectDCA } from "../utils";
+import useIsMobile from "../hooks/useIsMobile";
 import Card from "../components/Card";
 import Pill from "../components/Pill";
 import PageHeader from "../components/PageHeader";
@@ -38,13 +39,13 @@ function SliderCard({ label, value, unit, icon: Icon, color, min, max, step, onC
 }
 
 export default function SimulatorTab() {
+  const m = useIsMobile();
   const [monthly, setMonthly] = useState(75000);
   const [years, setYears] = useState(6);
   const [rate, setRate] = useState(9);
 
   const data = useMemo(() => projectDCA({ monthly, years, annualRate: rate }), [monthly, years, rate]);
   const final = data[data.length - 1];
-
   const monthlyIncome = (final.value * 0.08) / 12;
 
   return (
@@ -52,10 +53,10 @@ export default function SimulatorTab() {
       <PageHeader
         eyebrow="Simulateur interactif"
         title="Ajustez, voyez, décidez."
-        description="Ajustez les paramètres ci-dessous pour visualiser l'impact sur le capital final et les revenus mensuels passifs. Plusieurs combinaisons sont possibles."
+        description="Ajustez les paramètres ci-dessous pour visualiser l'impact sur le capital final et les revenus mensuels passifs."
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: m ? "1fr" : "repeat(3, 1fr)", gap: m ? 10 : 14, marginBottom: 20 }}>
         <SliderCard label="Mensuel" value={monthly} unit="F" icon={Coins} color={T.teal} min={25000} max={200000} step={5000} onChange={setMonthly}>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontFamily: FONT_MONO, fontSize: 10, color: T.inkDim }}>
             <span>25 000</span><span>200 000</span>
@@ -67,7 +68,7 @@ export default function SimulatorTab() {
                 background: monthly === v ? T.teal : T.bgSoft,
                 color: monthly === v ? "white" : T.inkSoft,
                 border: "none", borderRadius: 8,
-                fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, cursor: "pointer", transition: "all 0.15s",
+                fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, cursor: "pointer",
               }}>{v / 1000}k</button>
             ))}
           </div>
@@ -77,26 +78,20 @@ export default function SimulatorTab() {
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontFamily: FONT_MONO, fontSize: 10, color: T.inkDim }}>
             <span>3 ans</span><span>15 ans</span>
           </div>
-          <div style={{ marginTop: 14, padding: "8px 12px", background: T.blueSoft, borderRadius: 8, fontFamily: FONT_SANS, fontSize: 11, color: T.blue, fontWeight: 500 }}>
-            Pour un horizon retraite, 5 à 7 ans est la fourchette la plus pertinente.
-          </div>
         </SliderCard>
 
         <SliderCard label="Rendement" value={rate} unit="%/an" icon={TrendingUp} color={T.gold} min={5} max={14} step={0.5} onChange={setRate}>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontFamily: FONT_MONO, fontSize: 10, color: T.inkDim }}>
-            <span>5% (prudent)</span><span>14% (historique)</span>
-          </div>
-          <div style={{ marginTop: 14, padding: "8px 12px", background: T.goldPale, borderRadius: 8, fontFamily: FONT_SANS, fontSize: 11, color: T.gold, fontWeight: 500 }}>
-            BRVM réelle 2020-2025 : 14,8%/an. On reste prudent.
+            <span>5%</span><span>14%</span>
           </div>
         </SliderCard>
       </div>
 
       {/* Results */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: m ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 20 }}>
         <Card title="Trajectoire sur les années" subtitle="Le capital grandit avec le temps" icon={TrendingUp}>
-          <ResponsiveContainer width="100%" height={340}>
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height={m ? 240 : 340}>
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: m ? -20 : -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="gT" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={T.teal} stopOpacity={0.3} />
@@ -104,10 +99,10 @@ export default function SimulatorTab() {
                 </linearGradient>
               </defs>
               <CartesianGrid stroke={T.borderSoft} vertical={false} strokeDasharray="3 3" />
-              <XAxis dataKey="year" stroke={T.inkDim} tick={{ fontSize: 11, fontFamily: FONT_MONO, fill: T.inkMuted }} axisLine={false} tickLine={false} />
-              <YAxis stroke={T.inkDim} tick={{ fontSize: 11, fontFamily: FONT_MONO, fill: T.inkMuted }} tickFormatter={fmtFCFA} axisLine={false} tickLine={false} />
+              <XAxis dataKey="year" stroke={T.inkDim} tick={{ fontSize: 10, fontFamily: FONT_MONO, fill: T.inkMuted }} axisLine={false} tickLine={false} />
+              <YAxis stroke={T.inkDim} tick={{ fontSize: 10, fontFamily: FONT_MONO, fill: T.inkMuted }} tickFormatter={fmtFCFA} axisLine={false} tickLine={false} />
               <Tooltip content={<ChartTooltip />} />
-              <Legend wrapperStyle={{ fontFamily: FONT_SANS, fontSize: 12, paddingTop: 10 }} />
+              {!m && <Legend wrapperStyle={{ fontFamily: FONT_SANS, fontSize: 12, paddingTop: 10 }} />}
               <Area type="monotone" dataKey="invested" stroke={T.inkDim} strokeWidth={1.5} strokeDasharray="4 4" fill="none" name="Montant déposé" />
               <Area type="monotone" dataKey="value" stroke={T.teal} strokeWidth={2.5} fill="url(#gT)" name="Capital total" />
             </AreaChart>
@@ -116,44 +111,39 @@ export default function SimulatorTab() {
 
         {/* Big result */}
         <div style={{
-          padding: 32,
+          padding: m ? 24 : 32,
           background: `linear-gradient(135deg, ${T.tealDark} 0%, ${T.teal} 100%)`,
           borderRadius: 16, color: T.inkInv,
           position: "relative", overflow: "hidden",
           display: "flex", flexDirection: "column", justifyContent: "center",
         }}>
           <div style={{
-            position: "absolute", top: -60, right: -60,
-            width: 200, height: 200,
-            background: "radial-gradient(circle, rgba(251, 191, 36, 0.3), transparent 65%)",
-            borderRadius: "50%",
+            position: "absolute", top: -60, right: -60, width: 200, height: 200,
+            background: "radial-gradient(circle, rgba(251, 191, 36, 0.3), transparent 65%)", borderRadius: "50%",
           }} />
           <div style={{ position: "relative" }}>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 14 }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12 }}>
               Capital estimé à {years} ans
             </div>
-            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 56, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: 8 }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontSize: m ? 40 : 56, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1, marginBottom: 8 }}>
               {fmtFCFA(final.value)} F
             </div>
-            <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: "#FBBF24", fontWeight: 500, marginBottom: 26 }}>
+            <div style={{ fontFamily: FONT_SANS, fontSize: 14, color: "#FBBF24", fontWeight: 500, marginBottom: 22 }}>
               dont +{fmtFCFA(final.gain)} F de gains (×{(final.value / final.invested).toFixed(2)})
             </div>
-
             <div style={{
-              padding: 18,
-              background: "rgba(255, 255, 255, 0.12)",
-              backdropFilter: "blur(8px)",
-              borderRadius: 12,
+              padding: m ? 14 : 18, background: "rgba(255, 255, 255, 0.12)",
+              backdropFilter: "blur(8px)", borderRadius: 12,
               border: "1px solid rgba(255, 255, 255, 0.15)",
             }}>
               <div style={{ fontFamily: FONT_SANS, fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 6 }}>
                 Revenu mensuel possible (dividendes 8%)
               </div>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 36, fontWeight: 600, color: "#FBBF24", letterSpacing: "-0.02em", lineHeight: 1 }}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontSize: m ? 28 : 36, fontWeight: 600, color: "#FBBF24", letterSpacing: "-0.02em", lineHeight: 1 }}>
                 {fmtFCFAfull(Math.round(monthlyIncome))} F
               </div>
               <div style={{ fontFamily: FONT_SANS, fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 6, lineHeight: 1.5 }}>
-                reçus chaque mois <strong>sans toucher au capital</strong> — comme un salaire
+                reçus chaque mois <strong>sans toucher au capital</strong>
               </div>
             </div>
           </div>
@@ -162,17 +152,17 @@ export default function SimulatorTab() {
 
       {/* Year-by-year */}
       <Card title="Année par année" subtitle="Voir la progression détaillée" icon={Calculator}>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: FONT_SANS, fontSize: 13 }}>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", minWidth: m ? 500 : "auto", borderCollapse: "collapse", fontFamily: FONT_SANS, fontSize: m ? 12 : 13 }}>
             <thead>
               <tr>
-                {["Année", "Cumul déposé", "Valeur portefeuille", "Gain", "Revenu mensuel possible"].map(h => (
+                {["Année", "Déposé", "Valeur", "Gain", "Rev. mensuel"].map(h => (
                   <th key={h} style={{
-                    padding: "10px 14px",
+                    padding: m ? "8px 10px" : "10px 14px",
                     textAlign: h === "Année" ? "left" : "right",
-                    fontFamily: FONT_SANS, fontSize: 11, color: T.inkMuted,
+                    fontFamily: FONT_SANS, fontSize: 10, color: T.inkMuted,
                     fontWeight: 600, letterSpacing: "0.02em", textTransform: "uppercase",
-                    borderBottom: `1px solid ${T.border}`,
+                    borderBottom: `1px solid ${T.border}`, whiteSpace: "nowrap",
                   }}>{h}</th>
                 ))}
               </tr>
@@ -182,27 +172,21 @@ export default function SimulatorTab() {
                 const isLast = i === data.length - 2;
                 const yearlyDiv = (d.value * 0.08) / 12;
                 return (
-                  <tr key={d.year} style={{
-                    background: isLast ? T.tealPale : "transparent",
-                    transition: "background 0.15s",
-                  }}
-                  onMouseEnter={e => { if (!isLast) e.currentTarget.style.background = T.bgSubtle; }}
-                  onMouseLeave={e => { if (!isLast) e.currentTarget.style.background = "transparent"; }}
-                  >
-                    <td style={{ padding: "13px 14px", color: T.ink, fontWeight: isLast ? 700 : 500, borderBottom: `1px solid ${T.borderSoft}` }}>
-                      Année {d.year}{isLast && " ✦"}
+                  <tr key={d.year} style={{ background: isLast ? T.tealPale : "transparent" }}>
+                    <td style={{ padding: m ? "10px" : "13px 14px", color: T.ink, fontWeight: isLast ? 700 : 500, borderBottom: `1px solid ${T.borderSoft}`, whiteSpace: "nowrap" }}>
+                      An {d.year}{isLast && " ✦"}
                     </td>
-                    <td style={{ padding: "13px 14px", textAlign: "right", fontFamily: FONT_MONO, color: T.inkSoft, borderBottom: `1px solid ${T.borderSoft}` }}>
-                      {fmtFCFAfull(d.invested)} F
+                    <td style={{ padding: m ? "10px" : "13px 14px", textAlign: "right", fontFamily: FONT_MONO, color: T.inkSoft, borderBottom: `1px solid ${T.borderSoft}` }}>
+                      {fmtFCFAfull(d.invested)}
                     </td>
-                    <td style={{ padding: "13px 14px", textAlign: "right", fontFamily: FONT_MONO, color: isLast ? T.tealDark : T.ink, fontWeight: isLast ? 700 : 600, borderBottom: `1px solid ${T.borderSoft}` }}>
-                      {fmtFCFAfull(d.value)} F
+                    <td style={{ padding: m ? "10px" : "13px 14px", textAlign: "right", fontFamily: FONT_MONO, color: isLast ? T.tealDark : T.ink, fontWeight: isLast ? 700 : 600, borderBottom: `1px solid ${T.borderSoft}` }}>
+                      {fmtFCFAfull(d.value)}
                     </td>
-                    <td style={{ padding: "13px 14px", textAlign: "right", borderBottom: `1px solid ${T.borderSoft}` }}>
+                    <td style={{ padding: m ? "10px" : "13px 14px", textAlign: "right", borderBottom: `1px solid ${T.borderSoft}` }}>
                       <Pill color={T.green} bg={T.greenSoft}>+{fmtFCFA(d.gain)}</Pill>
                     </td>
-                    <td style={{ padding: "13px 14px", textAlign: "right", fontFamily: FONT_MONO, color: T.gold, fontWeight: 600, borderBottom: `1px solid ${T.borderSoft}` }}>
-                      {fmtFCFAfull(Math.round(yearlyDiv))} F
+                    <td style={{ padding: m ? "10px" : "13px 14px", textAlign: "right", fontFamily: FONT_MONO, color: T.gold, fontWeight: 600, borderBottom: `1px solid ${T.borderSoft}` }}>
+                      {fmtFCFAfull(Math.round(yearlyDiv))}
                     </td>
                   </tr>
                 );
